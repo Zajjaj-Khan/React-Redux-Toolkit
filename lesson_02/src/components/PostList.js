@@ -1,13 +1,24 @@
 import { useSelector } from "react-redux";
 import { selectAllPosts } from "../features/post/postSlice";
 import React from 'react'
-
+import PostAuthor from "./PostAuthor";
+import TimeAgo from "./TimeAgo";
+import ReactionButtons from "./ReactionButtons";
 function PostList() {
     const posts = useSelector(selectAllPosts);
-    const renderPosts = posts.map(post =>
+
+    const orderedPost = posts.slice().sort((a,b)=> b.date.localeCompare(a.date));
+
+    const renderPosts = orderedPost?.map(post =>
         <article key={post.id}>
-            <h3>{post.name}</h3>
+            <h3>{post.title}</h3>
             <p>{post.content}</p>
+            <p className="postCredit">
+                <PostAuthor userId={post.userId}/>
+                <TimeAgo timeStamp={post.date}/>
+             
+            </p>
+            <ReactionButtons post={post}/>
         </article>
     )
 
