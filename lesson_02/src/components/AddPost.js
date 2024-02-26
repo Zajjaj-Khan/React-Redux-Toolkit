@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { postAdded } from "../features/post/postSlice";
+import { addNewPost } from "../features/post/postSlice";
 import { selectAllUsers } from "../features/users/userSlice";
 function AddPost() {
   const dispatch = useDispatch();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [userId, setUserId] = useState("");
-
+  const [addRequestSatus, setAddRequestStatus] = useState("idle");
+  
   const users = useSelector(selectAllUsers);
 
   const onNameChanged = (e) => {
@@ -19,12 +20,22 @@ function AddPost() {
   const onAuthorChanged = (e) => {
     setUserId(e.target.value);
   };
+  const canSave = [title,content,userId].every(Boolean) && addRequestSatus === 'idle';
+
   const onSavePostClicked = () => {
-    if (title && content) {
-      dispatch(postAdded(title, content, userId));
-      setTitle("");
-      setContent("");
-      setUserId("");
+    if(canSave){
+      try {
+        setAddRequestStatus('pending')
+        dispatch(addNewPost({title,body:content,userId})).unwrap();
+        setTitle('');
+        setContent('');
+        setUserId('')
+
+      } catch (error) {
+        
+      }finally{
+        setAddRequestStatus('idle')
+      }
     }
   };
   const usersOptions = users?.map((user) => (
@@ -32,7 +43,6 @@ function AddPost() {
       {user.name}
     </option>
   ));
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId)
   return (
     <section>
       <h2>Add a New Post</h2>
